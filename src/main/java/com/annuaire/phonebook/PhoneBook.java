@@ -8,6 +8,7 @@ import java.util.Scanner;
 
 public class PhoneBook {
 
+    public static final String PHONE_BOOK_FILE_PATH = "C:\\Users\\cocci\\OneDrive\\Documents\\Cours_Tutos\\phonebook.txt";
     public static Scanner scanner = null;
     public static void main(String[] args) {
 
@@ -21,32 +22,66 @@ public class PhoneBook {
 
         System.out.println(newContact.toString());
 
-        File phoneBookFile = new File("C:\\Users\\cocci\\OneDrive\\Documents\\Cours_Tutos\\phonebook.txt");
+        File phoneBookFile = getOrCreatePhoneBookFile(PHONE_BOOK_FILE_PATH);
 
-        if (phoneBookFile.exists()) {
-            System.out.println("Le fichier existe à cette emplacement");
-        } else {
-            System.out.println("Le fichier n'existe pas");
-        }
-
-        try {
-            // TODO : use try with resources
-            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(phoneBookFile, true));
-            fileWriter.append(newContact.toString() + '\n');
-            System.out.println("Contact ajouté");
-            fileWriter.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        appendContactToPhoneBook(phoneBookFile,newContact);
 
         scanner.close();
     }
 
+    /**
+     *
+     * @param userRequest
+     * @return
+     */
     public static String getUserInput(String userRequest) {
         System.out.println(userRequest);
         /** nextLine() : fait attendre au scanner une entrée  utilisateur
          * tant que l'utilsateur n'a pas entré l'info et le scanner attend
          */
         return scanner.nextLine();
+    }
+
+    /**
+     *
+     * @param phoneBookFilePath
+     * @return
+     */
+
+    public static File getOrCreatePhoneBookFile(String phoneBookFilePath) {
+        // On prend un fichier
+        File phoneBookFile = new File(phoneBookFilePath);
+        // Si le fichier existe, on retourne le fichier
+        if (phoneBookFile.exists()) {
+            return phoneBookFile;
+        }
+        // S'il n'existe pas, on le crée
+        try {
+            phoneBookFile.createNewFile();
+            System.out.println("Le fichier a été créé (" + phoneBookFilePath + ")");
+        }catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * @param phoneBookFile
+     * @param newContact
+     * @return
+     */
+
+    public static Void appendContactToPhoneBook(File phoneBookFile, Contact newContact) {
+        // try with ressources
+        // Quand on met le bufferedWriter dans le try Java le clos automatique quand c'est fini
+        try (BufferedWriter fileWriter = new BufferedWriter(new FileWriter(phoneBookFile, true))){
+            fileWriter.append(newContact.toString());
+            fileWriter.append(System.lineSeparator());
+            System.out.println("Contact ajouté");
+
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return null;
     }
 }
